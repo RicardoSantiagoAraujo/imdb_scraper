@@ -3,6 +3,7 @@ from datetime import datetime
 from time import sleep
 from random import randint
 import utils as utils
+import config as config
 from rich import print
 
 
@@ -18,18 +19,20 @@ def main():
     print(f"Start time: {start_time}")
 
     # Read input CSV with movie URLs
-    pages = pd.read_csv("./inputs/ratings.csv")[["Const", "Title", "URL"]]
+    pages = pd.read_csv(config.ratings_file)[["Const", "Title", "URL"]]
 
     # Get already scraped entries
-    existing_rows = utils.get_existing_rows("./outputs/scraped_data.csv")
+    existing_rows = utils.get_existing_rows(config.scraped_data_file)
 
     # Initialize empty list to store results
     scraped_data = []
 
     # How many rows to scrap
-    startAt=0
-    stopAt= len(pages)
-    # stopAt= 6
+    startAt = config.startAt
+    if stopAt:
+        stopAt = config.stopAt
+    else:
+        stopAt= len(pages)
 
     for count, row in pages.iloc[startAt:stopAt].iterrows():
         print(f"Processing {count + 1}/{stopAt} ({count+1-startAt}/{stopAt-startAt}): {row['Title']} ({row['Const']}) : {row['URL']}")
@@ -43,16 +46,12 @@ def main():
     if len(scraped_data)== 0:
         print("\n[yellow] No new entries added. Terminating.[/yellow]")
         return
-    # File paths
-    scraped_data_file = './outputs/scraped_data.csv'
-    ratings_file = './inputs/ratings.csv'
-    extended_ratings_file = './outputs/ratings_extended.csv'
 
-    # Step 1: Append or create scraped_data.csv
-    merged_scraped_data = utils.append_or_create_csv(scraped_data, scraped_data_file)
+    # Step 1: Append or create new csv
+    merged_scraped_data = utils.append_or_create_csv(scraped_data, config.scraped_data_file)
 
     # Step 2: Merge the new data with the ratings file and save
-    utils.merge_and_save(merged_scraped_data, ratings_file, extended_ratings_file)
+    utils.merge_and_save(merged_scraped_data, config.ratings_file, config.extended_ratings_file)
 
     end_time = datetime.now()
     print("====================")
