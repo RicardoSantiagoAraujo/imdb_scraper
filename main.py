@@ -41,8 +41,12 @@ def main():
             continue
         film_data = utils.scrape_film_data(row)
         scraped_data.append(film_data)
-        print(f"\t [green]Entry added. {(count+1-startAt)/(stopAt-startAt)*100}% done! [/green]\n")
-
+        elapsed_time= datetime.now() - start_time
+        progress_percent = round(((count+1-startAt)/(stopAt-startAt)*100), 2)
+        print(f"\t [green]Entry added. {progress_percent}% done!\
+            Elapsed time: {elapsed_time}.\
+            Remaining time estimation:  {elapsed_time*(100 - progress_percent)/100} [/green]\n")
+        
     if len(scraped_data)== 0:
         print("\n[yellow] No new entries added. Terminating.[/yellow]")
         return
