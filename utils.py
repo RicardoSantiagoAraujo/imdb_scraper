@@ -236,7 +236,7 @@ def append_or_create_csv(scraped_data, file_path):
     Returns:
         pd.DataFrame: The DataFrame after appending new data or creating a new file.
     """
-    if os.path.exists(file_path):
+    if os.path.exists(file_path) and os.path.getsize(file_path) != 0:
         # If the file exists, read the existing data
         existing_data = pd.read_csv(file_path)
         # Convert the scraped data to DataFrame if it is a list or another format

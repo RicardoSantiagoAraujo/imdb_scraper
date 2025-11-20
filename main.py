@@ -26,10 +26,11 @@ def main():
 
     # Initialize empty list to store results
     scraped_data = []
+    total_added = 0
 
     # How many rows to scrap
     startAt = config.startAt
-    if stopAt:
+    if config.stopAt:
         stopAt = config.stopAt
     else:
         stopAt = len(pages)
@@ -50,33 +51,40 @@ def main():
         print(
             f"\t [green]Entry added. {progress_percent}% done!\
             Elapsed time: {elapsed_time}.\
-            Remaining time estimation:  {elapsed_time*(100 - progress_percent)/100} [/green]\n"
+            Remaining time estimation:  {elapsed_time*(100 - progress_percent)/progress_percent} [/green]\n"
         )
+        total_added += 1
+
+
         # SAVE PROGRESS EVERY N ROWS
-        if (count + 1) % config.save_every_n_rows == 0:  # Save progress every N rows
+        if len(scraped_data) >= config.save_every_n_rows:  # Save progress every N rows
             if len(scraped_data) > 0:
                 print(f"[cyan]Saving progress ({config.save_every_n_rows})...[/cyan]")
-                utils.append_or_create_csv(scraped_data, config.scraped_data_file) 
+                utils.append_or_create_csv(scraped_data, config.scraped_data_file)
                 existing_rows = utils.get_existing_rows(config.scraped_data_file) # Update existing rows
-                print("[cyan]Progress saved.[/cyan]\n")
+                scraped_data = [] # Reset scraper
+                print(f"[cyan]Progress saved ({total_added} so far).[/cyan]\n")
 
-    if len(scraped_data) == 0:
+    if total_added == 0:
         print("\n[yellow] No new entries added. Terminating.[/yellow]")
         return
 
-    # Step 1: Save remaining scraped data to CSV
-    print("\n[cyan]Saving final scraped data...[/cyan]")
-    merged_scraped_data = utils.append_or_create_csv(scraped_data, config.scraped_data_file)
 
-    # Step 2: Merge the new data with the ratings file and save
-    utils.merge_and_save(merged_scraped_data, config.ratings_file, config.extended_ratings_file)
+    if len(scraped_data) > 0:
+        # Step 1: Save remaining scraped data to CSV
+        print("\n[cyan]Saving final scraped data...[/cyan]")
+        merged_scraped_data = utils.append_or_create_csv(scraped_data, config.scraped_data_file)
+
+        # Step 2: Merge the new data with the ratings file and save
+        utils.merge_and_save(merged_scraped_data, config.ratings_file, config.extended_ratings_file)
+
 
     end_time = datetime.now()
     print("====================")
     print("\t [green]FINISHED[/green]")
     print(f"End time: {end_time}")
     print(f"Duration: {end_time - start_time}")
-    print(f"Total new rows: {len(scraped_data)}")
+    print(f"Total new rows: {total_added}")
 
 
 if __name__ == "__main__":

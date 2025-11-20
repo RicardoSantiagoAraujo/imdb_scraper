@@ -35,6 +35,8 @@ Update the following settings in `config.py`:
    ```
 3. Monitor the console output for progress and any errors.
 
+If you wish to re-scrape specific (a) film(s), you them remove it/them from **scraped_data.csv** and re-run script.
+
 ## Example
 
 ```bash
