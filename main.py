@@ -15,7 +15,7 @@ def main():
     It also merges the scraped data with the original ratings data and saves the extended dataset.
     """
     start_time = datetime.now()
-    print(f'[blue]***** IMDB Scraper *****[/blue]\n')
+    print(f"[blue]***** IMDB Scraper *****[/blue]\n")
     print(f"Start time: {start_time}")
 
     # Read input CSV with movie URLs
@@ -32,26 +32,40 @@ def main():
     if stopAt:
         stopAt = config.stopAt
     else:
-        stopAt= len(pages)
+        stopAt = len(pages)
 
     for count, row in pages.iloc[startAt:stopAt].iterrows():
-        print(f"Processing {count + 1}/{stopAt} ({count+1-startAt}/{stopAt-startAt}): {row['Title']} ({row['Const']}) : {row['URL']}")
+        print(
+            f"Processing {count + 1}/{stopAt} ({count+1-startAt}/{stopAt-startAt}): {row['Title']} ({row['Const']}) : {row['URL']}"
+        )
         if row["Const"] in existing_rows["Const"].values:
             print("\t [yellow]Entry already scraped. Skipping row.[/yellow]\n")
             continue
         film_data = utils.scrape_film_data(row)
         scraped_data.append(film_data)
-        elapsed_time= datetime.now() - start_time
-        progress_percent = round(((count+1-startAt)/(stopAt-startAt)*100), 2)
-        print(f"\t [green]Entry added. {progress_percent}% done!\
+
+        # Progress display
+        elapsed_time = datetime.now() - start_time
+        progress_percent = round(((count + 1 - startAt) / (stopAt - startAt) * 100), 2)
+        print(
+            f"\t [green]Entry added. {progress_percent}% done!\
             Elapsed time: {elapsed_time}.\
-            Remaining time estimation:  {elapsed_time*(100 - progress_percent)/100} [/green]\n")
-        
-    if len(scraped_data)== 0:
+            Remaining time estimation:  {elapsed_time*(100 - progress_percent)/100} [/green]\n"
+        )
+        # SAVE PROGRESS EVERY N ROWS
+        if (count + 1) % config.save_every_n_rows == 0:  # Save progress every N rows
+            if len(scraped_data) > 0:
+                print(f"[cyan]Saving progress ({config.save_every_n_rows})...[/cyan]")
+                utils.append_or_create_csv(scraped_data, config.scraped_data_file) 
+                existing_rows = utils.get_existing_rows(config.scraped_data_file) # Update existing rows
+                print("[cyan]Progress saved.[/cyan]\n")
+
+    if len(scraped_data) == 0:
         print("\n[yellow] No new entries added. Terminating.[/yellow]")
         return
 
-    # Step 1: Append or create new csv
+    # Step 1: Save remaining scraped data to CSV
+    print("\n[cyan]Saving final scraped data...[/cyan]")
     merged_scraped_data = utils.append_or_create_csv(scraped_data, config.scraped_data_file)
 
     # Step 2: Merge the new data with the ratings file and save
