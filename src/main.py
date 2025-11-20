@@ -2,8 +2,8 @@ import pandas as pd
 from datetime import datetime
 from time import sleep
 from random import randint
-import utils as utils
-import config as config
+import src.utils as utils
+import src.config as config
 from rich import print
 
 

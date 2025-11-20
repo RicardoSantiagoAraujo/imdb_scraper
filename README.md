@@ -40,7 +40,7 @@ If you wish to re-scrape specific (a) film(s), you them remove it/them from **sc
 ## Example
 
 ```bash
-python main.py
+python -m src.main
 ```
 
 The script will scrape IMDb data for the movies listed in the input CSV file and save the results.
