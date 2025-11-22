@@ -5,6 +5,9 @@ from time import sleep
 from random import randint
 import pandas as pd
 import os
+import json
+import re
+
 
 # Constants and User-Agent Header
 HEADERS = {
@@ -25,6 +28,7 @@ def request_and_parse(url, suffix=""):
         BeautifulSoup: The parsed HTML content of the page.
     """
     response_url = url + suffix
+    # print(f"\t Requesting URL: {response_url}")
     response = requests.get(response_url, headers=HEADERS)
     # sleep(randint(1, 3))  # Random sleep to avoid throttling
     if response.status_code != 200:
@@ -100,10 +104,29 @@ def scrape_credits(page_html, role):
     Returns:
         list: A list of names for the given role, or pd.NA if not found.
     """
-    title = page_html.find('h4', {'id': role})
-    if title:
-        names = title.find_next('table').find_all('a')
-        return [name.text.strip().replace("\n", "") for name in names]
+    # Create the pattern to search for
+    pattern = re.compile(f"{role}s?", re.IGNORECASE)
+
+    # Find the first h3 tag that matches the pattern, case-insensitively
+    # print(pattern)
+    # Find all h3 tags
+
+    tags = page_html.find_all('h3')
+
+    # Search for the pattern within each h3 tag's text content
+    for tag in tags:
+        # Check if the string inside any child element matches the pattern
+        if pattern.search(tag.get_text(strip=True)):  # Using `search()` for a flexible match
+            # print("Found matching h3:", tag)
+            # Find the next table after the matching h3 tag
+            ul = tag.find_next('ul')
+            if ul:
+                # Extract all links (a tags) inside the table
+                names = ul.find_all('a')
+                # Return the cleaned text of each link
+                return [name.text.strip().replace("\n", "") for name in names]
+
+    # Return NA if no matching tag is found
     return pd.NA
 
 def scrape_keywords(page_html):
@@ -129,8 +152,9 @@ def scrape_mpaa_rating(page_html):
     Returns:
         str: The MPAA rating, or pd.NA if not found.
     """
-    parental = page_html.find('tr', {'id': "mpaa-rating"})
-    return parental.find_all("td")[1].text if parental else pd.NA
+    el = page_html.find('section', {'data-testid': 'content-rating'}).find('div', {'role': 'presentation'})
+    print(el)
+    return el.text if el else pd.NA
 
 def scrape_technical_details(page_html, spec_id, html_tag):
     """
@@ -149,7 +173,7 @@ def scrape_technical_details(page_html, spec_id, html_tag):
         return [param.text for param in tech.find_all(html_tag)]
     return pd.NA
 
-def scrape_film_data(film_row):
+def full_scrape_film_data(film_row):
     """
     Scrapes all the film-related data from a given IMDb URL.
 
@@ -164,10 +188,10 @@ def scrape_film_data(film_row):
     const = film_row["Const"]
 
     page_html = request_and_parse(url)
-    page_credits_html = request_and_parse(url, "fullcredits")
-    page_keywords_html = request_and_parse(url, "keywords")
-    page_parental_html = request_and_parse(url, "parentalguide")
-    page_technical_html = request_and_parse(url, "technical")
+    page_credits_html = request_and_parse(url, "/fullcredits")
+    page_keywords_html = request_and_parse(url, "/keywords")
+    page_parental_html = request_and_parse(url, "/parentalguide")
+    page_technical_html = request_and_parse(url, "/technical")
 
     # Scraping data
     return {
@@ -271,3 +295,15 @@ def merge_and_save(merged_df, input_path, output_path):
     # Save the merged DataFrame to the output file
     extended_films.to_csv(output_path, index=False)
     print(f"Merged data saved to {output_path}.")
+
+def convert_csv_to_json(csv_file, json_file):
+    """
+    Converts a CSV file to a JSON file.
+
+    Args:
+        csv_file (str): Path to the input CSV file.
+        json_file (str): Path to the output JSON file.
+    """
+    df = pd.read_csv(csv_file)
+    df.to_json(json_file, orient='records', indent=4)
+    print(f"Converted {csv_file} to {json_file}.")

@@ -42,7 +42,7 @@ def main():
         if row["Const"] in existing_rows["Const"].values:
             print("\t [yellow]Entry already scraped. Skipping row.[/yellow]\n")
             continue
-        film_data = utils.scrape_film_data(row)
+        film_data = utils.full_scrape_film_data(row)
         scraped_data.append(film_data)
 
         # Progress display
@@ -70,7 +70,7 @@ def main():
         return
 
 
-    if len(scraped_data) > 0:
+    if total_added > 0:
         # Step 1: Save remaining scraped data to CSV
         print("\n[cyan]Saving final scraped data...[/cyan]")
         merged_scraped_data = utils.append_or_create_csv(scraped_data, config.scraped_data_file)
@@ -78,6 +78,8 @@ def main():
         # Step 2: Merge the new data with the ratings file and save
         utils.merge_and_save(merged_scraped_data, config.ratings_file, config.extended_ratings_file)
 
+        # Step 3: Convert to JSON
+        utils.convert_csv_to_json(config.extended_ratings_file, config.extended_ratings_file.replace('.csv', '.json'))
 
     end_time = datetime.now()
     print("====================")

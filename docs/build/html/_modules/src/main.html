@@ -13,23 +13,23 @@
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
-  
+
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for src.main</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
@@ -77,7 +77,7 @@
         <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Const&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">existing_rows</span><span class="p">[</span><span class="s2">&quot;Const&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> [yellow]Entry already scraped. Skipping row.[/yellow]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">continue</span>
-        <span class="n">film_data</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">scrape_film_data</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">film_data</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_scrape_film_data</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
         <span class="n">scraped_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">film_data</span><span class="p">)</span>
 
         <span class="c1"># Progress display</span>
@@ -128,7 +128,7 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
@@ -180,15 +180,15 @@
     </div>
     <div class="footer">
       &#169;2025, Ricardo Santiago Araujo.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>
